@@ -1,0 +1,30 @@
+# Virtual environment
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+*.toc
+
+# Ignore generated PDFs
+*.pdf
+
+# System and editor files
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+*.bak

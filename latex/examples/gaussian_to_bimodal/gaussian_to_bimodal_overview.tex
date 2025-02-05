@@ -1,0 +1,98 @@
+\documentclass[12pt,a4paper]{article}
+
+% Include the common preamble
+\input{../../preamble.tex}
+
+\title{Gaussian to Bimodal Example: A Didactic Overview}
+\author{Your Name}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\newpage
+
+\section{Introduction}
+
+This document explains, in a detailed and didactic manner, how the example code transforms a base Gaussian distribution into a bimodal distribution using flow matching in PyTorch. The example focuses on learning a time-dependent velocity field that pushes samples from a simple 2D Gaussian (base distribution) toward a bimodal mixture (target distribution).
+
+\section{Overview of the Example Code}
+
+The Python project is organized into several modules:
+\begin{itemize}
+    \item \textbf{Model Definition (\texttt{src/model.py}):}  
+    Defines a neural network that approximates the velocity field \( v(x,t) \). The network takes as input a 2D point \( x \) and a time scalar \( t \) and outputs a 2D velocity vector.
+    
+    \item \textbf{Dataset (\texttt{src/dataset.py}):}  
+    Generates sample pairs \((x_0,x_1)\) on the fly, where:
+    \begin{itemize}
+        \item \( x_0 \) is sampled from a standard 2D Gaussian.
+        \item \( x_1 \) is sampled from a bimodal distribution (a mixture of two Gaussians).
+    \end{itemize}
+    
+    \item \textbf{Trainer (\texttt{src/trainer.py}):}  
+    Implements the training loop. For each sample pair, a random time \( t \) is chosen. The interpolated point is computed as:
+    \[
+    x_t = (1-t)x_0 + t\,x_1,
+    \]
+    and the target velocity is:
+    \[
+    v_{\text{target}} = x_1 - x_0.
+    \]
+    The model is trained so that its prediction \( v(x_t,t) \) approximates \( v_{\text{target}} \) using mean squared error (MSE).
+    
+    \item \textbf{Visualization:}  
+    The code includes functions to plot:
+    \begin{enumerate}
+        \item A scatter plot of a few base (\( x_0 \)) and target (\( x_1 \)) samples with connecting lines.
+        \item The learned flow field (vector field) at a fixed time (e.g., \( t=0.5 \)) along with simulated trajectories computed via Euler integration.
+    \end{enumerate}
+\end{itemize}
+
+\section{Detailed Explanation}
+
+\subsection{Data Generation and Interpolation}
+For each training sample:
+\begin{itemize}
+    \item A base sample \( x_0 \) is drawn from a 2D standard Gaussian.
+    \item A target sample \( x_1 \) is drawn from a bimodal distribution.
+    \item A random time \( t \in [0,1] \) is selected.
+    \item The interpolated point is computed as:
+    \[
+    x_t = (1-t)x_0 + t\,x_1.
+    \]
+    \item The target velocity is defined as:
+    \[
+    v_{\text{target}} = x_1 - x_0.
+    \]
+\end{itemize}
+Because the interpolation is linear, the velocity remains constant along the path from \( x_0 \) to \( x_1 \).
+
+\subsection{Model Training}
+The neural network is trained to learn the mapping:
+\[
+(x_t, t) \mapsto v(x_t,t)
+\]
+so that the predicted velocity matches the target velocity \( x_1 - x_0 \). The loss function used is the mean squared error (MSE) between the predicted and target velocities.
+
+\subsection{Visualization of Results}
+Two main visualizations are produced:
+\begin{enumerate}
+    \item \textbf{Sample Pairs Plot:}  
+    A scatter plot showing:
+    \begin{itemize}
+        \item Green points for base samples \( x_0 \).
+        \item Red points for target samples \( x_1 \).
+    \end{itemize}
+    Gray lines connect each \( x_0 \) to its corresponding \( x_1 \), illustrating the desired transformation.
+    
+    \item \textbf{Flow Field and Trajectories:}  
+    A vector field is plotted at a fixed time (e.g., \( t=0.5 \)) using Matplotlib’s \texttt{quiver} function. Overlaid on this vector field are sample trajectories computed via Euler integration, which demonstrate how points move under the learned flow.
+\end{enumerate}
+
+\section{Conclusion}
+This example demonstrates how flow matching can be used to learn a transformation from a Gaussian distribution to a bimodal distribution. The detailed explanation provided here covers data generation, model training, and visualization, giving a complete picture of the underlying process.
+
+\end{document}

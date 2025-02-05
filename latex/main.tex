@@ -1,0 +1,126 @@
+\documentclass[12pt,a4paper]{article}
+
+% Include common preamble settings
+\input{preamble.tex}
+
+\begin{document}
+
+\title{Fundamental Concepts and Preliminaries}
+\author{Your Name}
+\date{\today}
+\maketitle
+
+\tableofcontents
+\newpage
+
+\section{Preliminaries}\label{sec:preliminaries}
+
+Before proceeding with the main results, we introduce some fundamental concepts that will be used throughout this text.
+
+\subsection{\texorpdfstring{$C^r$}{C\^{}r} Functions, Smoothness, and Diffeomorphisms}
+
+In modern analysis and geometry, the notation \( C^r \) measures the ``smoothness'' of functions. Let \( r \) be a nonnegative integer.
+
+\begin{definition}[\( C^r \) Functions]\label{def:Cr_functions}
+A function \( f: \mathbb{R}^n \to \mathbb{R}^m \) is said to be \emph{\( C^r \)} if it is \( r \) times continuously differentiable. In other words:
+\begin{enumerate}
+    \item \( f \) has all partial derivatives up to order \( r \).
+    \item All these partial derivatives are continuous.
+\end{enumerate}
+For example, \( C^0 \) means continuity, \( C^1 \) means the first partial derivatives exist and are continuous, and \( C^\infty \) means the function is smooth.
+\end{definition}
+
+\begin{definition}[\( C^r \)-Smoothness]\label{def:Cr_smoothness}
+A function is \emph{\( C^r \)-smooth} if it belongs to \( C^r(\mathbb{R}^n, \mathbb{R}^m) \); that is, it is \( r \) times continuously differentiable.
+\end{definition}
+
+\begin{definition}[\( C^r \) Diffeomorphism]\label{def:Cr_diffeomorphism}
+A \emph{\( C^r \) diffeomorphism} between open sets \( \Omega_1, \Omega_2 \subseteq \mathbb{R}^n \) is a bijection \( f: \Omega_1 \to \Omega_2 \) such that:
+\begin{enumerate}
+    \item \( f \) is \( C^r \)-smooth.
+    \item Its inverse \( f^{-1} \) is also \( C^r \)-smooth.
+\end{enumerate}
+\end{definition}
+
+\subsection{Ordinary Differential Equations (ODEs)}
+
+\begin{definition}[Ordinary Differential Equation]\label{def:ODE}
+An \emph{Ordinary Differential Equation (ODE)} is an equation involving an unknown function \( y: I \to \mathbb{R}^m \) (where \( I \subseteq \mathbb{R} \)) and its derivatives. A first-order ODE has the form
+\[
+\frac{dy}{dt} = f(t,y),
+\]
+with a given function \( f: I \times \mathbb{R}^m \to \mathbb{R}^m \).
+\end{definition}
+
+\subsection{Local Lipschitz Continuity}
+
+\begin{definition}[Locally Lipschitz]\label{def:locally_Lipschitz}
+A function \( f: \mathbb{R}^n \to \mathbb{R}^m \) is \emph{locally Lipschitz} if, for every \( x_0 \in \mathbb{R}^n \), there exists a neighborhood \( U \) and a constant \( L>0 \) such that
+\[
+\|f(x)-f(y)\| \le L\|x-y\|
+\]
+for all \( x,y \in U \).
+\end{definition}
+
+\subsection{Super-sets}
+
+\begin{definition}[Super-set]\label{def:superset}
+A set \( A \) is a \emph{super-set} of \( B \) if \( B \subseteq A \).
+\end{definition}
+
+\section{Equivalence between Flows and Velocity Fields}\label{sec:equivalence}
+
+\begin{definition}[\( C^r \) Flow]\label{def:Cr_flow}
+A \emph{\( C^r \) flow} \( \psi: [0,1] \times \mathbb{R}^d \to \mathbb{R}^d \) satisfies:
+\begin{enumerate}
+    \item For each fixed \( t \in [0,1] \), the map \( \psi_t(x) = \psi(t,x) \) is a \( C^r \) diffeomorphism.
+    \item \( \psi_0 = \text{id} \).
+    \item The map \( (t,x) \mapsto \psi(t,x) \) is \( C^r \)-smooth.
+    \item The flow property holds: \( \psi_{s+t}(x) = \psi_s(\psi_t(x)) \) whenever \( s+t \in [0,1] \).
+\end{enumerate}
+\end{definition}
+
+\begin{definition}[\( C^r \) Velocity Field]\label{def:Cr_velocity_field}
+A \emph{\( C^r \) velocity field} is a \( C^r \) smooth function
+\[
+u : [0,1] \times \mathbb{R}^d \to \mathbb{R}^d,
+\]
+where for each \( t \), \( u_t(x) = u(t,x) \) represents the instantaneous velocity.
+\end{definition}
+
+The flow \( \psi \) and the velocity field \( u \) are related by the ODE:
+\begin{subequations}\label{eq:flow_ODE}
+\begin{align}
+\frac{d}{dt} \psi_t(x) &= u_t(\psi_t(x)), \\
+\psi_0(x) &= x.
+\end{align}
+\end{subequations}
+
+The existence and uniqueness theory for ODEs (see, e.g., \cite{Perko2013,Coddington1955}) yields the following standard result:
+
+\begin{theorem}[Flow local existence and uniqueness]\label{thm:local_existence_uniqueness}
+If \(u\) is \(C^r([0,1] \times \mathbb{R}^d,\mathbb{R}^d)\) with \(r \ge 1\) (in particular, if \(u\) is locally Lipschitz), then the ODE \eqref{eq:flow_ODE} has a unique solution
+\[
+\psi_t(x)
+\]
+defined on an open set \(\Omega \subseteq \mathbb{R}^d\). Moreover, \(\psi_t\) is a \(C^r\) diffeomorphism onto its image and extends to a super-set of \(\{0\}\times\mathbb{R}^d\).
+\end{theorem}
+
+This theorem guarantees local existence and uniqueness of a \(C^r\) flow \(\psi\). Global existence (e.g., up to \(t=1\)) may require additional assumptions such as global Lipschitz conditions or bounded first derivatives.
+
+Conversely, given a \(C^1\) flow \(\psi_t\), we can recover its velocity field \(u_t(x)\) by:
+\[
+\frac{d}{dt}\psi_t(x') = u_t\bigl(\psi_t(x')\bigr),
+\]
+and using the invertibility of \(\psi_t\), let \(x' = \psi_t^{-1}(x)\). Hence,
+\[
+u_t(x) = \frac{d}{dt}\psi_t\bigl(\psi_t^{-1}(x)\bigr).
+\]
+Thus there is a one-to-one correspondence between \(C^r\) flows and their associated velocity fields.
+
+\bigskip
+
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}
