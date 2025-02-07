@@ -21,6 +21,9 @@ __pycache__/
 # Ignore generated PDFs
 *.pdf
 
+# Ignore images
+images/
+
 # System and editor files
 .DS_Store
 .vscode/

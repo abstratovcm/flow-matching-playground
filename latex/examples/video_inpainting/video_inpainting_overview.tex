@@ -1,0 +1,97 @@
+\documentclass{article}
+\input{../../preamble.tex}
+
+\title{A Didactic Overview of the Video Inpainting Pipeline}
+\author{abstratovcm}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+Video inpainting is the task of filling in missing frames in a video sequence by leveraging the context provided by observed frames. This document provides a detailed explanation of a codebase that demonstrates a complete pipeline for video inpainting using a Transformer-based model. The pipeline covers synthetic dataset generation, model definition, training (with techniques such as teacher forcing and scheduled sampling), and visualization of predictions.
+
+\section{Overview of the Code Structure}
+The project is organized into several key modules:
+\begin{itemize}
+    \item \textbf{video\_prediction\_example.py}: The main script that integrates all components. It generates synthetic video data, trains the model, and visualizes the predictions both as static plots and as an animated GIF.
+    \item \textbf{video\_inpainting\_dataset.py}: Defines a PyTorch Dataset for generating synthetic video sequences. Each sample is a 2D sinusoidal trajectory split into three segments: observed frames before the missing segment, missing frames (to be predicted), and observed frames after the missing segment.
+    \item \textbf{video\_inpainting\_transformer.py}: Implements the Transformer-based model. This module includes:
+    \begin{itemize}
+        \item An embedding layer to project 2D coordinates into a higher-dimensional space.
+        \item A positional encoding module to inject temporal information.
+        \item An encoder-decoder Transformer that processes the observed frames and predicts the missing segment.
+        \item Support for both teacher-forced decoding (with a causal mask) and autoregressive decoding using scheduled sampling.
+    \end{itemize}
+    \item \textbf{video\_inpainting\_trainer.py}: Contains the training loop, loss computation (using Mean Squared Error), and management of the teacher forcing ratio. The ratio decays linearly over epochs to gradually shift the model from using ground truth tokens to its own predictions.
+\end{itemize}
+
+\section{Synthetic Dataset Generation}
+The \texttt{VideoInpaintingDataset} class creates synthetic video data using sinusoidal functions. The process is as follows:
+\begin{enumerate}
+    \item A time vector is created spanning from 0 to $2\pi$.
+    \item Random base offsets, amplitudes, frequencies, and phases are sampled for both the $x$ and $y$ coordinates.
+    \item A 2D trajectory (video sequence) is generated as a sinusoidal function.
+    \item The sequence is split into three segments:
+    \begin{itemize}
+        \item \textbf{Observed (Before)}: Frames prior to the missing segment.
+        \item \textbf{Missing}: Frames that will be inpainted.
+        \item \textbf{Observed (After)}: Frames after the missing segment.
+    \end{itemize}
+    \item Normalization is applied using statistics (mean and standard deviation) computed solely from the observed segments. This prevents any leakage of information from the missing segment.
+\end{enumerate}
+
+\section{Model Architecture: Transformer for Video Inpainting}
+The model, defined in \texttt{video\_inpainting\_transformer.py}, leverages the Transformer architecture, which is well-suited for sequence modeling. Key components include:
+\begin{itemize}
+    \item \textbf{Embedding Layer}: Converts 2D input coordinates into a higher-dimensional representation.
+    \item \textbf{Positional Encoding}: Uses sinusoidal functions to add positional (temporal) information to the embeddings.
+    \item \textbf{Encoder-Decoder Structure}: 
+    \begin{itemize}
+        \item The encoder processes the concatenated observed segments (both before and after the missing segment).
+        \item The decoder predicts the missing frames.
+    \end{itemize}
+    \item \textbf{Causal Masking}: Applied during decoding (even in the teacher-forced branch) to ensure that at any given time step the decoder can only attend to past tokens, thus maintaining consistency between training and inference.
+    \item \textbf{Teacher Forcing \& Scheduled Sampling}: 
+    \begin{itemize}
+        \item \emph{Teacher Forcing}: During training, the ground truth missing frames can be provided as input to the decoder, forcing the model to learn from the correct sequence.
+        \item \emph{Scheduled Sampling}: The model gradually shifts from teacher forcing to using its own predictions (autoregressive decoding) by linearly decaying the teacher forcing ratio over epochs.
+    \end{itemize}
+\end{itemize}
+
+\section{Training Procedure}
+The training loop, defined in \texttt{video\_inpainting\_trainer.py}, orchestrates the following:
+\begin{enumerate}
+    \item \textbf{Loss Computation}: The Mean Squared Error (MSE) between the predicted and actual missing frames is computed.
+    \item \textbf{Optimization}: The Adam optimizer updates the model parameters.
+    \item \textbf{Teacher Forcing Ratio Scheduling}: The ratio decays linearly over epochs, reducing the reliance on ground truth inputs and encouraging the model to generate predictions in an autoregressive manner.
+\end{enumerate}
+
+\section{Visualization of Results}
+Once the model is trained, the main script (\texttt{video\_prediction\_example.py}) performs the following steps:
+\begin{enumerate}
+    \item A sample is extracted from the dataset.
+    \item The model generates predictions for the missing segment using autoregressive decoding.
+    \item The predicted frames are denormalized (using the previously computed mean and standard deviation) for visualization.
+    \item Two types of visualizations are created:
+    \begin{itemize}
+        \item \textbf{Static Plot}: Compares the observed and predicted trajectories for a selected joint.
+        \item \textbf{Animation}: An animated GIF illustrates the progression of the inpainting process over time.
+    \end{itemize}
+\end{enumerate}
+
+\section{Techniques and Machine Learning Concepts Used}
+The project integrates several advanced techniques in sequence modeling and machine learning:
+\begin{itemize}
+    \item \textbf{Transformer Architecture}: Utilizes attention mechanisms to capture long-range dependencies in the video sequence.
+    \item \textbf{Positional Encoding}: Allows the model to retain information about the order of the frames.
+    \item \textbf{Causal Masking}: Ensures that during decoding, the model does not have access to future frames, which is crucial for autoregressive generation.
+    \item \textbf{Teacher Forcing and Scheduled Sampling}: Balances the use of ground truth data and the model's own predictions during training, thereby reducing exposure bias.
+    \item \textbf{Synthetic Data Generation}: Provides a controlled environment to test the inpainting model on sinusoidal 2D trajectories.
+\end{itemize}
+
+\section{Conclusion}
+This document has presented an overview of a complete video inpainting pipeline using a Transformer-based model. The code demonstrates how to generate synthetic video data, train a model with both teacher forcing and autoregressive decoding, and visualize the predictions. The techniques employed—such as causal masking, scheduled sampling, and positional encoding—are widely applicable in advanced sequence modeling tasks in machine learning.
+
+\end{document}
