@@ -23,6 +23,7 @@ __pycache__/
 
 # Ignore images
 images/
+!examples/*/images/
 
 # System and editor files
 .DS_Store

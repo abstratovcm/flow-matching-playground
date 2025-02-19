@@ -1,0 +1,204 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath, amssymb}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\title{Exercise and Didactic Solution: Solving a Simple MRP via Bellman Equations}
+\author{Inspired by Sutton and Barto's \emph{Reinforcement Learning}}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section*{Exercise}
+
+Consider a Markov Reward Process (MRP) with three states: \textbf{A}, \textbf{B}, and a terminal state \textbf{T}. The process is described as follows:
+
+\begin{enumerate}[label=\textbf{\arabic*.}]
+    \item \textbf{State A:}
+    \begin{itemize}
+        \item With probability 0.5, the process \emph{stays in A} and receives a reward of 0.
+        \item With probability 0.5, the process \emph{moves to B} and receives a reward of 2.
+    \end{itemize}
+    
+    \item \textbf{State B:}
+    \begin{itemize}
+        \item With probability 0.8, the process moves to the terminal state \textbf{T} and receives a reward of 3.
+        \item With probability 0.2, the process returns to \textbf{A} and receives a reward of 0.
+    \end{itemize}
+    
+    \item \textbf{Terminal State T:}  
+    \begin{itemize}
+        \item This is an absorbing state with value 0 (i.e., once reached, the process ends).
+    \end{itemize}
+\end{enumerate}
+
+Assume a discount factor \( \gamma = 0.9 \).
+
+\textbf{Tasks:}
+\begin{enumerate}[label=\arabic*.]
+    \item \textbf{Write Down the Bellman Equations:} Write the Bellman equations for the value functions \( V(A) \) and \( V(B) \) for this process.
+    \item \textbf{Solve for the Value Functions:} Solve the resulting system of equations to find the numerical values of \( V(A) \) and \( V(B) \).
+\end{enumerate}
+
+\section*{Solution}
+
+\subsection*{Overview}
+
+In this exercise, we analyze a simple MRP, where an agent transitions between states and accumulates rewards. The goal is to compute the \emph{expected cumulative discounted reward} for each nonterminal state. The discount factor \( \gamma = 0.9 \) tells us that immediate rewards are more valuable than those received later.
+
+The Bellman equation is a fundamental tool in reinforcement learning. It recursively defines the value of a state as the sum of the immediate reward and the discounted value of the subsequent state(s). Formally, for a state \( s \) we have:
+\[
+V(s) = \sum_{s'} p(s' \mid s) \left[ R(s, s') + \gamma \, V(s') \right],
+\]
+where:
+\begin{itemize}
+    \item \( p(s' \mid s) \) is the probability of transitioning from state \( s \) to state \( s' \),
+    \item \( R(s, s') \) is the immediate reward for that transition,
+    \item \( \gamma \) is the discount factor.
+\end{itemize}
+
+\subsection*{Step 1: Writing the Bellman Equations}
+
+\textbf{For State A:}
+
+There are two possible outcomes:
+\begin{itemize}
+    \item With probability 0.5: Stay in A with reward 0.
+    \item With probability 0.5: Move to B with reward 2.
+\end{itemize}
+Thus, the Bellman equation for \( V(A) \) is:
+\[
+V(A) = 0.5\Bigl[ 0 + \gamma\, V(A) \Bigr] + 0.5\Bigl[ 2 + \gamma\, V(B) \Bigr].
+\]
+Substitute \( \gamma = 0.9 \):
+\[
+V(A) = 0.5 \times (0.9\, V(A)) + 0.5 \times (2 + 0.9\, V(B)) = 0.45\, V(A) + 1 + 0.45\, V(B).
+\]
+
+\bigskip
+
+\textbf{For State B:}
+
+Two outcomes occur:
+\begin{itemize}
+    \item With probability 0.8: Transition to terminal state T with reward 3. Since \( V(T)=0 \), this contributes \( 3 \) (no future rewards).
+    \item With probability 0.2: Return to A with reward 0.
+\end{itemize}
+The Bellman equation for \( V(B) \) is:
+\[
+V(B) = 0.8\Bigl[ 3 + \gamma\cdot 0 \Bigr] + 0.2\Bigl[ 0 + \gamma\, V(A) \Bigr].
+\]
+Again, substituting \( \gamma = 0.9 \):
+\[
+V(B) = 0.8 \times 3 + 0.2 \times (0.9\, V(A)) = 2.4 + 0.18\, V(A).
+\]
+
+\subsection*{Step 2: Solving the System of Equations}
+
+We now have the following system:
+\[
+\begin{aligned}
+(1) \quad V(A) &= 0.45\, V(A) + 1 + 0.45\, V(B), \\[1mm]
+(2) \quad V(B) &= 2.4 + 0.18\, V(A).
+\end{aligned}
+\]
+
+\paragraph{Solving Equation (1):}  
+Subtract \( 0.45\, V(A) \) from both sides:
+\[
+V(A) - 0.45\, V(A) = 1 + 0.45\, V(B) \quad \Longrightarrow \quad 0.55\, V(A) = 1 + 0.45\, V(B).
+\]
+Thus,
+\[
+V(A) = \frac{1 + 0.45\, V(B)}{0.55}. \tag{3}
+\]
+
+\paragraph{Substitute \( V(B) \) from Equation (2) into Equation (3):}
+\[
+V(A) = \frac{1 + 0.45 \, (2.4 + 0.18\, V(A))}{0.55}.
+\]
+Calculate:
+\[
+0.45 \times 2.4 = 1.08 \quad \text{and} \quad 0.45 \times 0.18\, V(A) = 0.081\, V(A).
+\]
+Thus,
+\[
+V(A) = \frac{1 + 1.08 + 0.081\, V(A)}{0.55} = \frac{2.08 + 0.081\, V(A)}{0.55}.
+\]
+
+\paragraph{Isolate \( V(A) \):}  
+Multiply both sides by 0.55:
+\[
+0.55\, V(A) = 2.08 + 0.081\, V(A).
+\]
+Subtract \( 0.081\, V(A) \) from both sides:
+\[
+0.55\, V(A) - 0.081\, V(A) = 2.08 \quad \Longrightarrow \quad 0.469\, V(A) = 2.08.
+\]
+Thus,
+\[
+V(A) = \frac{2.08}{0.469} \approx 4.434.
+\]
+
+\paragraph{Find \( V(B) \):}  
+Use Equation (2):
+\[
+V(B) = 2.4 + 0.18\, V(A) \approx 2.4 + 0.18 \times 4.434.
+\]
+Calculate:
+\[
+0.18 \times 4.434 \approx 0.798,
+\]
+so that
+\[
+V(B) \approx 2.4 + 0.798 \approx 3.198.
+\]
+
+\subsection*{Interpretation and Discussion}
+
+The values we obtained are:
+\[
+V(A) \approx 4.43 \quad \text{and} \quad V(B) \approx 3.20.
+\]
+
+\begin{itemize}
+    \item \textbf{Meaning of \( V(A) \):}  
+    \( V(A) \) represents the expected cumulative discounted reward when starting from state \textbf{A}. In other words, if the process begins in state A, we expect to accumulate approximately 4.43 reward points (when considering the discount factor \( \gamma = 0.9 \), which makes immediate rewards more significant than future rewards).
+
+    \item \textbf{Meaning of \( V(B) \):}  
+    \( V(B) \) represents the expected cumulative discounted reward starting from state \textbf{B}. A value of approximately 3.20 means that, on average, the process will yield 3.20 reward points when beginning in state B.
+\end{itemize}
+
+\medskip
+
+\noindent\textbf{What Are We Doing?}  
+In this problem, we:
+\begin{enumerate}
+    \item Formulated the recursive Bellman equations based on the transition probabilities and rewards.
+    \item Solved a system of linear equations to determine the values of the states.
+\end{enumerate}
+
+The Bellman equations allow us to capture the relationship between a state's value and the values of the states that can follow. Solving them gives us insight into which states are more valuable in terms of the expected future reward. These methods form the backbone of many reinforcement learning algorithms where evaluating or improving a policy is based on these value functions.
+
+\subsection*{Summary of Results}
+
+\begin{itemize}
+    \item \textbf{Bellman Equations:}
+    \[
+    \begin{aligned}
+    V(A) &= 0.45\, V(A) + 1 + 0.45\, V(B),\\[1mm]
+    V(B) &= 2.4 + 0.18\, V(A).
+    \end{aligned}
+    \]
+    \item \textbf{Solved Values:}
+    \[
+    V(A) \approx 4.43, \quad V(B) \approx 3.20.
+    \]
+\end{itemize}
+
+These results indicate that starting in state A is slightly more rewarding than starting in state B, as seen by the higher cumulative discounted reward. The methodology illustrated here is central to reinforcement learning and dynamic programming approaches used to evaluate policies.
+
+\end{document}
